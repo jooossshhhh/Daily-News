@@ -57,17 +57,24 @@ def webscrape(city):
 links,titles,weather_info = webscrape(city)
 
 user_agent={'User-agent': 'Mozilla/5.0'}
+
 #find quote of the day
 quotes_web = scrapin('https://www.brainyquote.com/quote_of_the_day',user_agent)
-qotd= quotes_web.find('div',class_='grid-item qb clearfix bqQt').getText()
-
+try:
+    qotd= quotes_web.find('div',class_='grid-item qb clearfix bqQt').getText()
+except Exception as err:
+    #if theres an error, send the error to your email for later fixing
+    qotd = '\nNo quote today.'
+    email_alert('Error with qotd','File: '+__file__+'\n'+str(err),None,[admin_email])
+    #print(err)
+    
 counter = 1
 text_message = []
 email_stuff = []
 for title in zip(titles,links):
     news_print = '('+str(counter)+') '+title[0]+'\n' 
     #make list of strings ready to be displayed in an email
-    email = '<pre>\n(<a href='+str(title[1])+'>_'+str(counter)+'_</a>) ' + title[0] +'</pre>'
+    email = '<pre>\n'+str(counter)+'. <a href='+str(title[1])+'>'+title[0]+'</a> </pre>'
     #print(news_print)
     text_message.append(news_print)
     email_stuff.append(email)
